@@ -1,6 +1,8 @@
 const functions = require("firebase-functions");
+import gqlServer from './graphql/server';
 
-const app = require("express")();
+//const app = require("express")();
+const app = gqlServer();
 
 const {
   getAllPosts,
