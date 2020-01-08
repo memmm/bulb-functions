@@ -1,8 +1,8 @@
 const functions = require("firebase-functions");
-import gqlServer from './graphql/server';
+//const gqlServer = require("./graphql/server");
 
-//const app = require("express")();
-const app = gqlServer();
+const express = require("express");
+const { ApolloServer, gql } = require('apollo-server-express');
 
 const {
   getAllPosts,
@@ -22,33 +22,76 @@ const {
   getUserDetails,
   markNotificationsRead
 } = require("./handlers/users");
+
+const schema = gql`
+  type Query {
+    "A simple type for getting started!"
+    posts: [Post]
+  }
+  type Post {
+    body: String
+    createdAt: String
+    commentCount: Int
+    likeCount: Int
+    userHandle: String
+    userImage: String
+  }
+`;
+//const resolvers = require("./resolvers");
+
+const resolvers = {
+  Query: {
+    posts: () => getAllPosts
+  }
+};
+
+
+function gqlServer() {
+  const app = express();
+
+  const apolloServer = new ApolloServer({
+    typeDefs: schema,
+    resolvers,
+    // Enable graphiql gui
+    introspection: true,
+    playground: true
+  });
+
+  apolloServer.applyMiddleware({app, path: '/', cors: true});
+
+  return app;
+}
+
+exports.api = functions.region("europe-west1").https.onRequest(gqlServer());
+
+
+
 const FBAuth = require("./util/fbAuth");
 
 const { db } = require("./util/admin");
 
-//Posts routes
-app.get("/posts", getAllPosts);
-app.post("/post", FBAuth, postOnePost);
-app.get("/post/:postId", getPost);
-app.delete("/post/:postId", FBAuth, deletePost);
-app.post("/post/:postId/comment", FBAuth, commentOnPost);
-app.get("/post/:postId/like", FBAuth, likePost);
-app.get("/post/:postId/unlike", FBAuth, unlikePost);
+// //Posts routes
+// app.get("/posts", getAllPosts);
+// app.post("/post", FBAuth, postOnePost);
+// app.get("/post/:postId", getPost);
+// app.delete("/post/:postId", FBAuth, deletePost);
+// app.post("/post/:postId/comment", FBAuth, commentOnPost);
+// app.get("/post/:postId/like", FBAuth, likePost);
+// app.get("/post/:postId/unlike", FBAuth, unlikePost);
 
-//Users routes
-app.post("/signup", signup);
-app.post("/login", login);
-app.post("/user/image", FBAuth, uploadImage);
-app.post("/user", FBAuth, addUserDetails);
-app.get("/user", FBAuth, getAuthenticatedUser);
-app.get("/user/:handle", getUserDetails);
-app.post("/notifications", FBAuth, markNotificationsRead);
+// //Users routes
+// app.post("/signup", signup);
+// app.post("/login", login);
+// app.post("/user/image", FBAuth, uploadImage);
+// app.post("/user", FBAuth, addUserDetails);
+// app.get("/user", FBAuth, getAuthenticatedUser);
+// app.get("/user/:handle", getUserDetails);
+// app.post("/notifications", FBAuth, markNotificationsRead);
 
-app.get("/hello", (request, response) => {
-  response.send("Hello alkoholostak!");
-});
+// app.get("/hello", (request, response) => {
+//   response.send("Hello alkoholostak!");
+// });
 
-exports.api = functions.region("europe-west1").https.onRequest(app);
 
 exports.createNotificationOnLike = functions
   .region("europe-west1")
