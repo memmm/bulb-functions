@@ -26,22 +26,46 @@ const {
 const schema = gql`
   type Query {
     "A simple type for getting started!"
-    posts: [Post]
+    getPost(postId:String): Post
+    getPosts: [Post]
+    subject: String
+  }
+  type User {
+    createdAt: String
+    email: String
+    handle: String
+    imageUrl: String
+    userId: ID
+  }
+  type Comment {
+    body: String
+    createdAt: String
+    post: Post
+    user: User
+    userImage: String
+  }
+  type Like {
+    post: Post
+    user: User
   }
   type Post {
     body: String
     createdAt: String
     commentCount: Int
+    comments: [Comment]
     likeCount: Int
-    userHandle: String
-    userImage: String
+    likes: [Like]
+    user: User
   }
+  
 `;
 //const resolvers = require("./resolvers");
 
 const resolvers = {
   Query: {
-    posts: () => getAllPosts
+    subject: () => {return "T&H"}, 
+    getPost: (root, args, context, info) => getPost(args.postId),
+    getPosts: () => getAllPosts()
   }
 };
 

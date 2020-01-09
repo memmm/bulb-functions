@@ -1,6 +1,7 @@
 const { db } = require('../util/admin');
 
-exports.getAllPosts = (req, res) => {
+exports.getAllPosts = () => {
+    
     db
     .collection('posts')
     .orderBy('createdAt', 'desc')
@@ -18,7 +19,8 @@ exports.getAllPosts = (req, res) => {
                 userImage: doc.data().userImage
             });
         });
-        return res.json(posts)
+        console.log(posts);
+        return posts;
     })
     .catch(err => console.log(err));
 };
@@ -47,17 +49,16 @@ exports.postOnePost = (req, res) => {
     });
 };
 
-exports.getPost = (req, res) => {
+exports.getPost = (postId) => {
     let postData = {};
-    
-    db.doc(`/posts/${req.params.postId}`).get()
+    db.doc(`/posts/${postId}`).get()
     .then(doc => {
         if(!doc.exists) {
-            return res.status(404).json({error: 'Post not found'})
+            return null;
         }
         postData = doc.data();
         postData.postId = doc.id;
-        return db.collection('comments').orderBy('createdAt', 'desc').where('postId', '==', req.params.postId).get();
+        return db.collection('comments').orderBy('createdAt', 'desc').where('postId', '==', postId).get();
     })
     .then(data => {
         
@@ -65,7 +66,8 @@ exports.getPost = (req, res) => {
         data.forEach(doc => {
             postData.comments.push(doc.data())
         });
-        return res.json(postData);
+        console.log(postData);
+        return postData;
     })
     .catch(err => {
         console.error(err);
