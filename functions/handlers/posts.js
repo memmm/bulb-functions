@@ -2,7 +2,7 @@ const { db } = require('../util/admin');
 
 exports.getAllPosts = () => {
     
-    db
+    return db
     .collection('posts')
     .orderBy('createdAt', 'desc')
     .get()
@@ -51,7 +51,7 @@ exports.postOnePost = (req, res) => {
 
 exports.getPost = (postId) => {
     let postData = {};
-    db.doc(`/posts/${postId}`).get()
+    return db.doc(`/posts/${postId}`).get()
     .then(doc => {
         if(!doc.exists) {
             return null;

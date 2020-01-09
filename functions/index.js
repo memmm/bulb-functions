@@ -26,7 +26,7 @@ const {
 const schema = gql`
   type Query {
     "A simple type for getting started!"
-    getPost(postId:String): Post
+    getPost(postId: ID): Post
     getPosts: [Post]
     subject: String
   }
@@ -49,13 +49,11 @@ const schema = gql`
     user: User
   }
   type Post {
+    postId: ID
     body: String
-    createdAt: String
     commentCount: Int
-    comments: [Comment]
     likeCount: Int
-    likes: [Like]
-    user: User
+    userHandle: String
   }
   
 `;
